@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Профиль {{ author.username }}{% endblock %}
+{% block header %}<h1>Профиль {{ author.username }}</h1>{% endblock %}
+{% block content %}
+<main role="main" class="container">
+  <div class="row">
+    <div class="col-md-3 mb-3 mt-1">
+      <div class="card">
+        <div class="card-body">
+          <div class="h2">
+            <!-- Имя автора -->
+            {{ author.get_full_name }}
+          </div>
+          <div class="h3 text-muted">
+            <!-- username автора -->
+            @{{ author.username }}
+          </div>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+             <div class="h6 text-muted">
+               Подписчиков: {{ author.following.count }} <br />
+               Подписан: {{ author.follower.count }}
+             </div>
+          </li>
+          <li class="list-group-item">
+            <div class="h6 text-muted">
+              Записей: {{ author.posts.all.count }}
+            </div>
+          </li>
+          <li class="list-group-item">
+            {% if is_following and user.is_authenticated %}
+              <a class="btn btn-lg btn-light" 
+                href="{% url 'profile_unfollow' author.username %}" role="button"> 
+                Отписаться 
+              </a> 
+            {% elif user.is_authenticated %}
+              <a class="btn btn-lg btn-primary" 
+                href="{% url 'profile_follow' author.username %}" role="button">
+              Подписаться 
+              </a>
+            {% endif %}
+        </li> 
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      {% if not post %}                
+        {% for post in page %}
+          <!-- Начало блока с отдельным постом --> 
+          {% include 'includes/post_item.html' with post=post %}
+          {% if not forloop.last %}<hr>{% endif %}
+        {% endfor %} 
+        <!-- Здесь постраничная навигация паджинатора -->
+        {% if page.has_other_pages %}
+          {% include 'includes/paginator.html' with items=page paginator=paginator %}
+        {% endif %}
+      {% else %}
+        {% include 'includes/post_item.html' with form=form post=post %}
+        {% include 'includes/comments.html' with form=form comments=comments %}
+      {% endif %}
+    </div>
+  </div>
+</main>
+{% endblock %}
