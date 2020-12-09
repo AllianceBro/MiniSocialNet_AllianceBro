@@ -1,3 +1,7 @@
+import shutil
+import tempfile
+
+from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
 from django.core.cache import cache
@@ -10,6 +14,9 @@ from posts.models import Group, Post, User
 class Settings(TestCase):
     @classmethod
     def setUpClass(cls):
+        # Создаем временную папку для медиа-файлов;
+        # на момент теста медиа папка будет перопределена
+        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
         super().setUpClass()
         # Create a test Group object
         Group.objects.create(
@@ -38,6 +45,12 @@ class Settings(TestCase):
             registration_required=False,
         )
         cls.about_spec.sites.add(cls.site)
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        # Рекурсивно удаляем временную после завершения тестов
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
         # Test guest client

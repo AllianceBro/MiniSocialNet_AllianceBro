@@ -5,8 +5,10 @@ from posts.models import Group, Post
 
 from .test_settings import Settings
 
-# Making constant urls
+# Making constants
 NEWPOST_URL = reverse('new_post')
+PATH_TO_PICTURE = 'media/posts/wifu.jpg'
+PATH_TO_MP3 = 'media/posts/La_music.mp3'
 
 
 class TestFormClass(Settings):
@@ -83,10 +85,9 @@ class TestFormClass(Settings):
 
     def test_img_is_loaded_correctly(self):
         """ Test image is being loaded correctly """
-        path_to_image = 'media/posts/wifu.jpg'
         # Delete all posts except a new one (we'll create it soon)
         Post.objects.all().delete()
-        with open(path_to_image, 'rb') as img:
+        with open(PATH_TO_PICTURE, 'rb') as img:
             form_data = {
                 'text': 'Пост с картинкой',
                 'group': self.group.id,
@@ -97,16 +98,15 @@ class TestFormClass(Settings):
                 data=form_data,
                 follow=True
             )
-        page = response.context.get('page')
-        self.assertEqual(len(page), 1)
-        self.assertIsNotNone(page[0].image)
+            page = response.context.get('page')
+            self.assertEqual(len(page), 1)
+            self.assertIsNotNone(page[0].image)
 
     def test_not_img_is_not_being_loaded(self):
         """ Test if form doesnt send a not image file """
-        path_to_mp3 = 'media/posts/La_music.mp3'
         # Delete all posts except a new one (we'll create it soon)
         Post.objects.all().delete()
-        with open(path_to_mp3, 'rb') as mp3:
+        with open(PATH_TO_MP3, 'rb') as mp3:
             form_data = {
                 'text': 'Пост с кракозяброй',
                 'image': mp3
@@ -117,8 +117,7 @@ class TestFormClass(Settings):
                 follow=True
             )
         page = response.context.get('page')
-        self.assertEqual(len(page), 1)
-        self.assertIsNone(page[0].image)
+        self.assertIsNone(page)
 
     def test_authorized_can_add_comment(self):
         """ Test if authorized user can add comments """

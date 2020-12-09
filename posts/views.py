@@ -35,7 +35,7 @@ def group_post(request, slug):
 @login_required
 def new_post(request):
     """ Shows create new post page """
-    form = PostForm(request.POST or None)
+    form = PostForm(request.POST or None, files=request.FILES or None)
     if not form.is_valid():
         return render(request, 'posts/new_post.html', {'form': form})
     # Change data in instance of our form
