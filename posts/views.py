@@ -91,8 +91,8 @@ def post_edit(request, username, post_id):
     # If user really is the author
     if request.user.username != username:
         return redirect('profile', username)
-    post = get_object_or_404(Post, id=post_id, author=user)
     user = get_object_or_404(User, username=username)
+    post = get_object_or_404(Post, id=post_id, author=user)
     form = PostForm(
         request.POST or None,
         files=request.FILES or None,
