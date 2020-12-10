@@ -14,8 +14,6 @@ from posts.models import Group, Post, User
 class Settings(TestCase):
     @classmethod
     def setUpClass(cls):
-        # Создаем временную папку для медиа-файлов;
-        # на момент теста медиа папка будет перопределена
         settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
         super().setUpClass()
         # Create a test Group object
@@ -49,7 +47,6 @@ class Settings(TestCase):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        # Рекурсивно удаляем временную после завершения тестов
         shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):

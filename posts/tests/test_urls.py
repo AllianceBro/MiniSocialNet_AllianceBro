@@ -16,7 +16,7 @@ NEWPOST_REDIRECT_URL = f"{ reverse('login') }?next={ NEWPOST_URL }"
 
 class StaticURLTests(Settings):
     def test_urls_give_correct_code_for_everybody(self):
-        """ If pages are shown to the everybody """
+        """Test if pages are shown to the everybody"""
         urls = [
             HOMEPAGE_URL,
             GROUP_URL,
@@ -34,7 +34,7 @@ class StaticURLTests(Settings):
                 )
 
     def test_urls_give_correct_code_for_authorized(self):
-        """ If pages are shown to the authorized users """
+        """Test if pages are shown to the authorized users"""
         urls = [
             NEWPOST_URL,
             self.POST_EDIT_URL
@@ -48,7 +48,7 @@ class StaticURLTests(Settings):
                 )
 
     def test_redirect_for_anonym(self):
-        """ If anonyms are being redirected """
+        """Test if anonyms are being redirected"""
         urls_redirects = {
             self.POST_EDIT_URL: self.POSTEDIT_REDIRECT_URL,
             NEWPOST_URL: NEWPOST_REDIRECT_URL,
@@ -63,12 +63,12 @@ class StaticURLTests(Settings):
                 )
 
     def test_redirect_for_other_user_editing_url(self):
-        """ If some other user is being redirected """
+        """Test if some other user is being redirected"""
         response = self.stranger_client.get(self.POST_EDIT_URL, follow=True)
         self.assertRedirects(response, self.POST_URL)
 
     def test_urls_uses_correct_template(self):
-        """ If urls shows users a correct html template """
+        """Test if urls shows users a correct html template"""
         templates_url_names = {
             HOMEPAGE_URL: 'posts/index.html',
             GROUP_URL: 'group.html',

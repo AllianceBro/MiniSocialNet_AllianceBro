@@ -4,8 +4,8 @@
 {% block content %}
   <div class="container">
     {% block posti %}
-    {% include "includes/menu.html" with index=True %}
-    <h1>Последние обновления на сайте</h1>
+      {% include "includes/menu.html" with index=True %}
+      <h1>Последние обновления на сайте</h1>
       <!-- Вывод ленты записей -->
       {% for post in page %}
         {% include "includes/post_item.html" with post=post %}

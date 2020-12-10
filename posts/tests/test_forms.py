@@ -1,4 +1,5 @@
 from django import forms
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
 from posts.models import Group, Post
@@ -7,13 +8,11 @@ from .test_settings import Settings
 
 # Making constants
 NEWPOST_URL = reverse('new_post')
-PATH_TO_PICTURE = 'media/posts/wifu.jpg'
-PATH_TO_MP3 = 'media/posts/La_music.mp3'
 
 
 class TestFormClass(Settings):
     def test_can_create_new_post(self):
-        """ Test ability to create new posts """
+        """Test ability to create new posts"""
         text = 'AYA YA YA'
         form_data = {
             'text': text,
@@ -35,7 +34,7 @@ class TestFormClass(Settings):
         self.assertEqual(response.status_code, 200)
 
     def test_can_edit_existing_post(self):
-        """ Test ability to edit existing posts """
+        """Test ability to edit existing posts"""
         new_group = Group.objects.create(
             title='JatetskiyGus',
             slug='jat_gus',
@@ -57,7 +56,7 @@ class TestFormClass(Settings):
         self.assertEqual(response.status_code, 200)
 
     def test_form_pages_for_context(self):
-        """ Test pages with forms for correct context """
+        """Test pages with forms for correct context"""
         form_fields = {
             'group': forms.ChoiceField,
             'text': forms.CharField,
@@ -75,7 +74,7 @@ class TestFormClass(Settings):
                     self.assertIsInstance(form_field, type_of_field)
 
     def test_user_edits_correct_post(self):
-        """ Test if post in editform instance is the one we want to edit """
+        """Test if post in editform instance is the one we want to edit"""
         response = self.authorized_client.get(self.POST_EDIT_URL)
         # Is it a correct post?
         self.assertEqual(
@@ -83,44 +82,39 @@ class TestFormClass(Settings):
             self.post
         )
 
-    def test_img_is_loaded_correctly(self):
-        """ Test image is being loaded correctly """
+    def test_image_is_loaded_correctly(self):
+        """Test image is being loaded correctly"""
         # Delete all posts except a new one (we'll create it soon)
         Post.objects.all().delete()
-        with open(PATH_TO_PICTURE, 'rb') as img:
-            form_data = {
-                'text': 'Пост с картинкой',
-                'group': self.group.id,
-                'image': img
-            }
-            response = self.authorized_client.post(
-                NEWPOST_URL,
-                data=form_data,
-                follow=True
-            )
-            page = response.context.get('page')
-            self.assertEqual(len(page), 1)
-            self.assertIsNotNone(page[0].image)
-
-    def test_not_img_is_not_being_loaded(self):
-        """ Test if form doesnt send a not image file """
-        # Delete all posts except a new one (we'll create it soon)
-        Post.objects.all().delete()
-        with open(PATH_TO_MP3, 'rb') as mp3:
-            form_data = {
-                'text': 'Пост с кракозяброй',
-                'image': mp3
-            }
-            response = self.authorized_client.post(
-                NEWPOST_URL,
-                data=form_data,
-                follow=True
-            )
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00'
+            b'\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00'
+            b'\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
+        uploaded= SimpleUploadedFile(
+            name='wifu.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
+        form_data = {
+            'text': 'Пост с картинкой',
+            'group': self.group.id,
+            'image': uploaded,
+        }
+        response = self.authorized_client.post(
+            NEWPOST_URL,
+            data=form_data,
+            follow=True
+        )
         page = response.context.get('page')
-        self.assertIsNone(page)
+        self.assertEqual(len(page), 1)
+        self.assertIsNotNone(page[0].image)
+        self.assertEqual(page[0].image.size, uploaded.size)
 
     def test_authorized_can_add_comment(self):
-        """ Test if authorized user can add comments """
+        """Test if authorized user can add comments"""
         form_data = {
             'text': 'Офигенный пост, моей маме понравилось!'
         }
@@ -129,5 +123,6 @@ class TestFormClass(Settings):
             data=form_data,
             follow=True
         )
-        comment = response.context.get('comments')[0]
-        self.assertEqual(comment.text, form_data['text'])
+        comment_list = response.context.get('comments')
+        self.assertEqual(len(comment_list), 1)
+        self.assertEqual(comment_list[0].text, form_data['text'])

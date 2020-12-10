@@ -58,7 +58,7 @@
         {% endif %}
       {% else %}
         {% include 'includes/post_item.html' with form=form post=post %}
-        {% include 'includes/comments.html' with form=form comments=comments %}
+        {% include 'includes/comments.html' with form=form comments=post.comments.all %}
       {% endif %}
     </div>
   </div>

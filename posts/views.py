@@ -19,7 +19,7 @@ def index(request):
 
 
 def group_post(request, slug):
-    """ Shows group page with posts """
+    """Return a group page with posts"""
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()
     paginator = Paginator(posts, 10)
@@ -34,7 +34,7 @@ def group_post(request, slug):
 
 @login_required
 def new_post(request):
-    """ Shows create new post page """
+    """Return a new post page with form"""
     form = PostForm(request.POST or None, files=request.FILES or None)
     if not form.is_valid():
         return render(request, 'posts/new_post.html', {'form': form})
@@ -45,7 +45,7 @@ def new_post(request):
 
 
 def profile(request, username):
-    """ Shows user's profile page """
+    """Return a user's profile page"""
     user = get_object_or_404(User, username=username)
     paginator = Paginator(user.posts.all(), 10)
     page_number = request.GET.get('page')
@@ -64,10 +64,9 @@ def profile(request, username):
 
 
 def post_view(request, username, post_id):
-    """ Shows one particular post with comments """
+    """Return one particular post with comments and comment's form"""
     user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, id=post_id, author=user)
-    comments = Comment.objects.filter(post=post, author=user).all()
     is_following = (
         request.user.is_authenticated and
         Follow.objects.filter(author=user, user=request.user)
@@ -78,23 +77,22 @@ def post_view(request, username, post_id):
             'form': form,
             'author': user,
             'post': post,
-            'comments': comments,
             'is_following': is_following,
         })
     form.instance.author = request.user
-    form.instance.post_id = post.id
+    form.instance.post = post
     form.save()
     return redirect('post', user.username, post.id)
 
 
 @login_required
 def post_edit(request, username, post_id):
-    """ Shows edit page for post """
-    user = get_object_or_404(User, username=username)
-    post = get_object_or_404(Post, id=post_id, author=user)
+    """Return an edit page for a particular post"""
     # If user really is the author
-    if request.user != user:
-        return redirect('post', user.username, post.id)
+    if request.user.username != username:
+        return redirect('profile', username)
+    post = get_object_or_404(Post, id=post_id, author=user)
+    user = get_object_or_404(User, username=username)
     form = PostForm(
         request.POST or None,
         files=request.FILES or None,
@@ -113,32 +111,23 @@ def post_edit(request, username, post_id):
 
 @login_required
 def add_comment(request, username, post_id):
-    """ Shows adding comment page for post """
+    """Return an adding comment page for post"""
     user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, id=post_id, author=user)
-    is_following = (
-        request.user.is_authenticated and
-        Follow.objects.filter(author=user, user=request.user)
-    )
     form = CommentForm(request.POST or None)
     if not form.is_valid():
-        return render(request, 'posts/profile.html', {
-            'form': form,
-            'author': user,
-            'post': post,
-            'is_following': is_following,
-        })
+        return redirect('post', user.username, post.id)
     form.instance.author = request.user
-    form.instance.post_id = post.id
+    form.instance.post = post
     form.save()
     return redirect('post', user.username, post.id)
 
 
 @login_required
 def follow_index(request):
-    """ Shows user's favorite author's posts """
+    """Return user's favorite author's posts"""
     post_list = Post.objects.select_related('author').filter(
-        author__in=request.user.follower.all().values('author')
+        author__following__user=request.user
     )
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
@@ -152,20 +141,22 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    """ Subscribe user to the author """
+    """Do a subscribtion of the user to the author"""
     author = get_object_or_404(User, username=username)
-    if request.user == author:
-        return redirect('profile', author.username)
-    if Follow.objects.filter(author=author, user=request.user).exists():
-        return redirect('profile', author.username)
-    Follow.objects.create(author=author, user=request.user)
+    if request.user != author and not Follow.objects.filter(
+        author=author,
+        user=request.user
+    ).exists():
+        Follow.objects.create(author=author, user=request.user)
     return redirect('profile', author.username)
 
 
 @login_required
 def profile_unfollow(request, username):
-    """ Unfollow user from the author """
+    """Unfollow the user from the author"""
     author = get_object_or_404(User, username=username)
+    # Check if the user is a follower of the author
+    get_object_or_404(Follow, user=request.user, author=author)
     Follow.objects.get(author=author, user=request.user).delete()
     return redirect('profile', author.username)
 

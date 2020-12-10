@@ -29,7 +29,7 @@ class PostModelTest(Settings):
                 )
 
     def test_str_func_of_models(self):
-        """ Check __str__ funcs """
+        """Check __str__ funcs"""
         post = self.post
         group = self.group
         post_str_data = [
