@@ -1,14 +1,18 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.cache import cache_page
+# from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 
 from .forms import CommentForm, PostForm
 from .models import Follow, Group, Post, User
 
 
-@cache_page(20, key_prefix='index_page')
+# @cache_page(20, key_prefix='index_page')
 def index(request):
+    key = make_template_fragment_key('navbar', request.user.username)
+    cache.delete(key)
     paginator = Paginator(Post.objects.all(), 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)

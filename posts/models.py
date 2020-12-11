@@ -21,7 +21,7 @@ class Group(models.Model):
         verbose_name_plural = 'Сообщества'
 
     def __str__(self):
-        return self.title
+       return self.title
 
 
 class Post(models.Model):
@@ -63,11 +63,12 @@ class Post(models.Model):
         verbose_name_plural = 'Записи'
 
     def __str__(self):
+        group = self.group.title or 'No Group'
         post_data = [
             self.text[0:15],
             self.author.username,
             self.pub_date.strftime('%d/%m/%Y'),
-            self.group.title
+            group
         ]
         return '|'.join(post_data)
 
@@ -112,3 +113,7 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Контентмейкер',
     )
+
+    class Meta:
+        verbose_name = 'Подписчик'
+        verbose_name_plural = 'Подписчики'
