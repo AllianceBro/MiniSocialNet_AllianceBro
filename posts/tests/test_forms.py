@@ -50,9 +50,10 @@ class TestFormClass(Settings):
             data=form_data,
             follow=True
         )
-        self.post.refresh_from_db()
-        self.assertEqual(self.post.text, form_data['text'])
-        self.assertEqual(self.post.group, new_group)
+        # Get post from the 'post_page' (there is only one post on the page)
+        post = response.context.get('post')
+        self.assertEqual(post.text, form_data['text'])
+        self.assertEqual(post.group, new_group)
         self.assertEqual(response.status_code, 200)
 
     def test_form_pages_for_context(self):
@@ -126,3 +127,5 @@ class TestFormClass(Settings):
         comment_list = response.context.get('comments')
         self.assertEqual(len(comment_list), 1)
         self.assertEqual(comment_list[0].text, form_data['text'])
+        self.assertEqual(comment_list[0].author, self.user)
+        self.assertEqual(comment_list[0].post, self.post)

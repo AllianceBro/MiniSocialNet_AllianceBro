@@ -16,7 +16,7 @@
       </p>
   
       <!-- Если пост относится к какому-нибудь сообществу и НЕ показывается на странице группы, то отобразим ссылку на него через # -->
-      {% if not group and post.group %}
+      {% if not group_page and post.group %}
         <a class="card-link muted" href="{% url 'group_post' post.group.slug %}">
           <strong class="d-block text-gray-dark">#{{ post.group.title }}</strong>
         </a>
@@ -46,6 +46,15 @@
                 Редактировать
               </a>
             {% endif %}
+          </div>
+        {% else %}
+          <div class="button">
+            <!-- Отображение ссылки для перехода к посту для анонима -->
+            <a class="btn btn-sm btn-primary"
+              href="{% url 'post' post.author.username post.id %}"
+              role="button">
+              Посмотреть комментарии
+            </a>
           </div>
         {% endif %}
         <!-- Дата публикации поста -->

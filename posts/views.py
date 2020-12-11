@@ -27,6 +27,7 @@ def group_post(request, slug):
     page = paginator.get_page(page_number)
     return render(request, 'group.html', {
         'group': group,
+        'group_page': True,
         'paginator': paginator,
         'page': page,
     })
@@ -154,11 +155,9 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     """Unfollow the user from the author"""
-    author = get_object_or_404(User, username=username)
-    # Check if the user is a follower of the author
-    get_object_or_404(Follow, user=request.user, author=author)
-    Follow.objects.get(author=author, user=request.user).delete()
-    return redirect('profile', author.username)
+    # Check if the user is a follower of the author and delete it
+    get_object_or_404(Follow, user=request.user, author__username=username).delete()
+    return redirect('profile', username)
 
 
 def page_not_found(request, exception):

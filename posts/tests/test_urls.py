@@ -65,7 +65,7 @@ class StaticURLTests(Settings):
     def test_redirect_for_other_user_editing_url(self):
         """Test if some other user is being redirected"""
         response = self.stranger_client.get(self.POST_EDIT_URL, follow=True)
-        self.assertRedirects(response, self.POST_URL)
+        self.assertRedirects(response, PROFILE_URL)
 
     def test_urls_uses_correct_template(self):
         """Test if urls shows users a correct html template"""

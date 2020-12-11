@@ -122,7 +122,10 @@ class PostPagesTest(Settings):
 
     def test_can_unsubscribe(self):
         """Test if authorized user can unsubscribe"""
-        self.stranger_client.get(FOLLOW_URL)
+        Follow.objects.create(
+            user = self.stranger_user,
+            author = self.user
+        )
         self.stranger_client.get(UNFOLLOW_URL)
         self.assertFalse(
             Follow.objects.filter(
