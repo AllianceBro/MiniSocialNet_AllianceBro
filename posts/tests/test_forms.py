@@ -94,7 +94,7 @@ class TestFormClass(Settings):
             b'\x00\x00\x01\x00\x01\x00\x00\x02'
             b'\x02\x4c\x01\x00\x3b'
         )
-        uploaded= SimpleUploadedFile(
+        uploaded = SimpleUploadedFile(
             name='wifu.gif',
             content=small_gif,
             content_type='image/gif'

@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 
 from .forms import CommentForm, PostForm
-from .models import Comment, Follow, Group, Post, User
+from .models import Follow, Group, Post, User
 
 
 @cache_page(20, key_prefix='index_page')
@@ -156,7 +156,9 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     """Unfollow the user from the author"""
     # Check if the user is a follower of the author and delete it
-    get_object_or_404(Follow, user=request.user, author__username=username).delete()
+    get_object_or_404(
+        Follow, user=request.user, author__username=username
+    ).delete()
     return redirect('profile', username)
 
 
