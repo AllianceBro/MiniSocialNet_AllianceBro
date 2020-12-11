@@ -56,6 +56,13 @@ class Post(models.Model):
         verbose_name='Изображение',
         help_text='Это должна быть картинка'
     )
+    music = models.FileField(
+        upload_to='posts/',
+        blank=True,
+        null=True,
+        verbose_name='Музыкальный файл',
+        help_text='Файл должен быть в расширении .mp3'
+    )
 
     class Meta:
         ordering = ('-pub_date',)

@@ -14,6 +14,13 @@
         </a>
         {{ post.text|linebreaksbr }}
       </p>
+      <!-- Отображение музыкального файла -->
+      {% if post.music %}
+        <audio controls>
+          <source src="{{ post.music.url }}" type="audio/mpeg">
+        Your browser does not support the audio element.
+        </audio>
+      {% endif %}
   
       <!-- Если пост относится к какому-нибудь сообществу и НЕ показывается на странице группы, то отобразим ссылку на него через # -->
       {% if not group_page and post.group %}
